@@ -26,7 +26,7 @@ function fazerLogin() {
 
     const dados = { "email": user, "senha": pass };
 
-    fetch('http://localhost:5000/login', {
+    fetch('https://gestao-financeira-2-67du.onrender.com', {
 
         method: 'POST',
         headers: { 
@@ -46,7 +46,7 @@ function fazerLogin() {
     .then(resultado => {
         console.log("Sucesso:", resultado.mensagem);
         // Usamos assign para garantir o redirecionamento entre portas diferentes
-        window.location.assign("http://localhost:8501/");
+        window.location.assign("index.html");
     })
     .catch(erro => {
         console.error("Erro no fetch:", erro);
