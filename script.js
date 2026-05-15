@@ -26,7 +26,7 @@ function fazerLogin() {
 
     const dados = { "email": user, "senha": pass };
 
-    fetch('https://gestao-financeira-2-67du.onrender.com', {
+    fetch('https://gestao-financeira-2-67du.onrender.com/login', {
 
         method: 'POST',
         headers: { 
