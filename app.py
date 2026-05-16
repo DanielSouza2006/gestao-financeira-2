@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -16,9 +15,14 @@ users = {
     "daniel@gmail.com": "1234"
 }
 
+@app.route("/")
+def home():
+    return "servidor funcionando!"
+
 @app.route('/login', methods=['POST'])
 def verificar_login():
     data = request.get_json()
+    
     email = data.get('email')
     senha = data.get('senha')
 
@@ -30,120 +34,7 @@ def verificar_login():
         return jsonify({"mensagem": "E-mail ou senha inválidos."}), 401
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
 
-# Caminho base do projeto
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ---------------- CONFIG ----------------
-st.set_page_config(page_title="Controle Financeiro", layout="centered")
-
-def local_css(file_name):
-    path = os.path.join(BASE_DIR, file_name)
-    if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
-            st.markdown(f"""{f.read()}""", unsafe_allow_html=True)
-
-# Carrega o CSS global
-local_css("style.css")
-
-# ---------------- APP PRINCIPAL ----------------
-st.title("💰 Controle Financeiro")
-
-if "transacoes" not in st.session_state:
-    st.session_state.transacoes = []
-
-# MENU
-menu = st.sidebar.selectbox(
-    "Menu",
-    ["Dashboard", "Adicionar Transação", "Ver Transações"]
-)
-
-# TEMA
-tema = st.sidebar.selectbox(
-    "Escolha o tema",
-    ["Claro", "Escuro"]
-)
-
-if tema == "Escuro":
-    st.markdown(
-        """
-        <style>
-        .stApp {
-            background-color: #1E1E1E;
-            color: white;
-        }
-        </style>
-        <div class="dark-mode"></div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# ---------------- TELAS ----------------
-
-if menu == "Adicionar Transação":
-
-    st.header("Adicionar Transação")
-
-    tipo = st.selectbox("Tipo", ["Receita", "Despesa"])
-
-    categoria = st.selectbox(
-        "Categoria",
-        ["Salário", "Alimentação", "Transporte", "Lazer", "Outros"]
-    )
-
-    valor = st.number_input("Valor", min_value=0.0)
-
-    descricao = st.text_input("Descrição")
-
-    if st.button("Salvar"):
-        transacao = {
-            "tipo": tipo,
-            "categoria": categoria,
-            "valor": valor,
-            "descricao": descricao
-        }
-
-        st.session_state.transacoes.append(transacao)
-        st.success("Transação salva!")
-
-elif menu == "Ver Transações":
-
-    st.header("Transações")
-
-    df = pd.DataFrame(st.session_state.transacoes)
-    st.write(df)
-
-elif menu == "Dashboard":
-
-    st.header("Dashboard")
-
-    df = pd.DataFrame(st.session_state.transacoes)
-
-    if not df.empty:
-
-        receitas = df[df["tipo"] == "Receita"]["valor"].sum()
-        despesas = df[df["tipo"] == "Despesa"]["valor"].sum()
-
-        saldo = receitas - despesas
-
-        st.metric("Receitas", f"R${receitas:.2f}")
-        st.metric("Despesas", f"R${despesas:.2f}")
-        st.metric("Saldo", f"R${saldo:.2f}")
-
-        gastos = df[df["tipo"] == "Despesa"]
-
-        if not gastos.empty:
-
-            grafico = gastos.groupby("categoria")["valor"].sum()
-
-            fig, ax = plt.subplots()
-            grafico.plot(kind="pie", autopct="%1.1f%%", ax=ax)
-
-            st.pyplot(fig)
-
-            media_gastos = gastos["valor"].mean()
-            st.metric("Média de gastos", f"R$ {media_gastos:.2f}")
-
-    else:
-        st.write("Nenhuma transação cadastrada.")

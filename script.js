@@ -46,7 +46,7 @@ function fazerLogin() {
     .then(resultado => {
         console.log("Sucesso:", resultado.mensagem);
         // Usamos assign para garantir o redirecionamento entre portas diferentes
-        window.location.assign("index.html");
+        window.location.assign("app.py");
     })
     .catch(erro => {
         console.error("Erro no fetch:", erro);
